@@ -9,6 +9,7 @@ from fastapi import FastAPI, File, Form, UploadFile, Header
 from fastapi.encoders import jsonable_encoder
 from starlette.staticfiles import StaticFiles
 from starlette.responses import StreamingResponse, RedirectResponse, PlainTextResponse
+from fastapi.responses import JSONResponse
 from fastapi.responses import UJSONResponse
 from fastapi.openapi.docs import (
     get_redoc_html,
@@ -19,6 +20,7 @@ from fastapi.openapi.docs import (
 from modules.processing import Processing
 from env_parser import EnvConfigs
 from schemas import BodyDraw, BodyExtract
+from flask import Flask, request, Response, jsonify
 
 __version__ = "0.7.0.0"
 
@@ -85,7 +87,28 @@ async def extract(data: BodyExtract, accept: Optional[List[str]] = Header(None))
         return PlainTextResponse(msgpack.dumps(output), media_type='application/x-msgpack')
     else:
         return UJSONResponse(output)
+@app.post('/fd', tags=['Detection & recognition'])
+async def fd(data: BodyExtract):
+    images = jsonable_encoder(data.images)
+    output = await processing.extract(images, max_size=data.max_size, return_face_data=data.return_face_data,
+                                      embed_only=False, extract_embedding=False,
+                                      threshold=data.threshold, extract_ga=False,
+                                      limit_faces=data.limit_faces, return_landmarks=data.return_landmarks,
+                                      verbose_timings=data.verbose_timings, api_ver=data.api_ver)
+    return UJSONResponse(output)
+@app.post('/embedding', tags=['Detection & recognition'])
+async def embedding(data: BodyExtract):
+    """
+    input must be 112*112 face
 
+    """
+    images = jsonable_encoder(data.images)
+    output = await processing.extract(images, max_size=data.max_size, return_face_data=data.return_face_data,
+                                      embed_only=True, extract_embedding=True,
+                                      threshold=data.threshold, extract_ga=False,
+                                      limit_faces=data.limit_faces, return_landmarks=False,
+                                      verbose_timings=data.verbose_timings, api_ver=data.api_ver)
+    return UJSONResponse(output)
 
 @app.post('/draw_detections', tags=['Detection & recognition'])
 async def draw(data: BodyDraw):
