@@ -137,8 +137,12 @@ Models accuracy on WiderFace benchmark:
 ## Running with Docker:
 
 1. Clone repo.
-2. Execute `deploy_trt.sh` from repo's root, edit settings if needed.
-3. Go to http://localhost:18081 to access documentation and try API
+2. download the model:
+  https://drive.google.com/file/d/1Q5Qdg5Th4zSLW4hihoeDb2xNLKzBRUxA/view?usp=sharing
+  </br>put folder like as</br>
+  ![](https://i.imgur.com/MjW8465.png)
+3. Execute `deploy_trt.sh` from repo's root, edit settings if needed.
+4. Go to http://localhost:18081 to access documentation and try API
 
 If you have multiple GPU's with enough GPU memory you can try running
 multiple containers by editing *n_gpu* and *n_workers* parameters in
